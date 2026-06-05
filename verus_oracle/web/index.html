@@ -150,6 +150,27 @@
 
   <div id="result"></div>
 
+  <details class="panel" id="patterns-panel" open>
+    <summary style="font-size: 14px; color: var(--fg); font-weight: 600; margin-bottom: 10px;">
+      Pattern reference (R1–R11)
+    </summary>
+    <p style="color: var(--muted); margin: 6px 0 10px; font-size: 13px;">
+      Verus rejects valid Rust whose semantics the solver can't reason about. The community
+      converged on a small catalog of mechanical rewrites that coax it through. The router
+      predicts which one your function needs.
+    </p>
+    <table id="patterns-table">
+      <thead>
+        <tr>
+          <th style="width: 70px;">code</th>
+          <th style="width: 260px;">what to rewrite</th>
+          <th>trigger you'll see in source</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </details>
+
   <footer>
     JSON API: <code>POST /score</code> · <code>POST /score/upload</code> · OpenAPI at <a href="/docs">/docs</a>
   </footer>
@@ -181,11 +202,41 @@ fn pack_limb(carry: u64, low: u64) -> u128 {
 }
 `;
 
+const PATTERN_INFO = {
+  R1:  { name: "Trait method → wrapper",            trigger: ".ct_eq, .conditional_assign, .zeroize, operator traits" },
+  R2:  { name: "Chain → named intermediates",       trigger: "two or more chained method calls in one expression" },
+  R3:  { name: "Iterator → indexed loop",           trigger: ".iter, .map, .fold, .zip, .collect, .sum, ..." },
+  R4:  { name: "Std / macro → inline",              trigger: "Default::default, copy_from_slice, vec![..], inner fn declarations" },
+  R5:  { name: "Negation / operator → wrapper",     trigger: "unary -x on user types; !x.is_zero()" },
+  R7:  { name: "Cast / reborrow rewrite",           trigger: "(self as &T) + rhs; explicit `as &T` reborrows" },
+  R8:  { name: "Arithmetic adaptation",             trigger: "+=, -=, *=, <<=, >>=; deeply nested arithmetic" },
+  R9:  { name: "Const → materialized",              trigger: "const FOO calling non-const fns" },
+  R10: { name: "Tuple-struct → named-field",        trigger: "struct Foo(pub Inner); bare .0 / .1 field access" },
+  R11: { name: "Constructor → named intermediates", trigger: "struct literal with complex sub-expressions" },
+};
+
+function patternTooltip(code) {
+  const p = PATTERN_INFO[code];
+  return p ? `${code}: ${p.name} — ${p.trigger}` : code;
+}
+
+function renderPatternsTable() {
+  const tbody = document.querySelector("#patterns-table tbody");
+  tbody.innerHTML = Object.entries(PATTERN_INFO).map(([code, p]) => `
+    <tr>
+      <td><span class="pattern">${code}</span></td>
+      <td>${p.name}</td>
+      <td class="mono" style="color: var(--muted);">${p.trigger}</td>
+    </tr>`).join("");
+}
+
 const $ = (id) => document.getElementById(id);
 const src = $("src"), runBtn = $("run"), demoBtn = $("loadDemo"),
       offline = $("offline"), status = $("status"), result = $("result"),
       fileInput = $("file"), urlInput = $("url"), fetchBtn = $("fetchBtn"),
       srcLabel = $("srcLabel");
+
+renderPatternsTable();
 
 let sourceFilename = null;
 
@@ -238,7 +289,7 @@ function render(v) {
     <tr>
       <td class="mono">${fn.function}</td>
       <td>${pill(fn.bucket)}</td>
-      <td><span class="pattern">${fn.predicted_pattern || "—"}</span>
+      <td><span class="pattern" title="${patternTooltip(fn.predicted_pattern)}">${fn.predicted_pattern || "—"}</span>
           <span class="status">${fn.top_confidence != null ? "@" + fn.top_confidence.toFixed(2) : ""}</span></td>
       <td class="num">${fn.est_duration_s != null ? fn.est_duration_s.toFixed(0) + "s" : "—"}</td>
       <td>${pill(fn.duration_bucket)}</td>
@@ -249,7 +300,7 @@ function render(v) {
       <div class="rollup">
         <div class="cell"><div class="k">file</div><div class="v">${v.file || "&lt;inline&gt;"}</div></div>
         <div class="cell"><div class="k">bucket</div><div class="v">${pill(v.bucket)}</div></div>
-        <div class="cell"><div class="k">predicted</div><div class="v"><span class="pattern">${v.predicted_pattern || "—"}</span></div></div>
+        <div class="cell"><div class="k">predicted</div><div class="v"><span class="pattern" title="${patternTooltip(v.predicted_pattern)}">${v.predicted_pattern || "—"}</span></div></div>
         <div class="cell"><div class="k">est. duration</div><div class="v">${v.est_duration_s != null ? v.est_duration_s.toFixed(0) + "s" : "—"} ${pill(v.duration_bucket)}</div></div>
       </div>
       <table>
