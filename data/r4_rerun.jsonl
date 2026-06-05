@@ -1,0 +1,15 @@
+{"case_id": "R4-001", "ground_truth": "R4", "top_1": "R3", "top_1_conf": 0.9, "top_2": "R1", "top_2_conf": 0.6, "match_top1": false, "match_top2": false, "elapsed_s": 1.96}
+{"case_id": "R4-002", "ground_truth": "R4", "top_1": "R4", "top_1_conf": 0.85, "top_2": "R11", "top_2_conf": 0.3, "match_top1": true, "match_top2": true, "elapsed_s": 2.05}
+{"case_id": "R4-003", "ground_truth": "R4", "top_1": "R4", "top_1_conf": 0.85, "top_2": "R11", "top_2_conf": 0.3, "match_top1": true, "match_top2": true, "elapsed_s": 2.23}
+{"case_id": "R4-004", "ground_truth": "R4", "top_1": "R4", "top_1_conf": 0.85, "top_2": "R11", "top_2_conf": 0.3, "match_top1": true, "match_top2": true, "elapsed_s": 2.18}
+{"case_id": "R4-005", "ground_truth": "R4", "top_1": "R4", "top_1_conf": 0.85, "top_2": "R11", "top_2_conf": 0.3, "match_top1": true, "match_top2": true, "elapsed_s": 1.94}
+{"case_id": "R4-006", "ground_truth": "R4", "top_1": "R9", "top_1_conf": 0.9, "top_2": "R11", "top_2_conf": 0.25, "match_top1": false, "match_top2": false, "elapsed_s": 1.89}
+{"case_id": "R4-007", "ground_truth": "R4", "top_1": "R3", "top_1_conf": 0.9, "top_2": "R4", "top_2_conf": 0.4, "match_top1": false, "match_top2": true, "elapsed_s": 2.01}
+{"case_id": "R4-008", "ground_truth": "R4", "top_1": "R4", "top_1_conf": 0.8, "top_2": "R8", "top_2_conf": 0.3, "match_top1": true, "match_top2": true, "elapsed_s": 1.83}
+{"case_id": "R4-009", "ground_truth": "R4", "top_1": "R4", "top_1_conf": 0.9, "top_2": "R8", "top_2_conf": 0.25, "match_top1": true, "match_top2": true, "elapsed_s": 8.45}
+{"case_id": "R4-010", "ground_truth": "R4", "top_1": "R4", "top_1_conf": 0.7, "top_2": "R8", "top_2_conf": 0.35, "match_top1": true, "match_top2": true, "elapsed_s": 2.82}
+{"case_id": "R4-011", "ground_truth": "R4", "top_1": "R4", "top_1_conf": 0.9, "top_2": "R8", "top_2_conf": 0.25, "match_top1": true, "match_top2": true, "elapsed_s": 2.09}
+{"case_id": "R4-012", "ground_truth": "R4", "top_1": "R4", "top_1_conf": 0.9, "top_2": "R10", "top_2_conf": 0.25, "match_top1": true, "match_top2": true, "elapsed_s": 2.41}
+{"case_id": "R4-013", "ground_truth": "R4", "top_1": "R4", "top_1_conf": 0.9, "top_2": "R10", "top_2_conf": 0.25, "match_top1": true, "match_top2": true, "elapsed_s": 2.66}
+{"case_id": "R4-014", "ground_truth": "R4", "top_1": "R8", "top_1_conf": 0.7, "top_2": "R2", "top_2_conf": 0.4, "match_top1": false, "match_top2": false, "elapsed_s": 2.15}
+{"case_id": "R4-015", "ground_truth": "R4", "top_1": "R2", "top_1_conf": 0.7, "top_2": "R4", "top_2_conf": 0.2, "match_top1": false, "match_top2": true, "elapsed_s": 2.06}

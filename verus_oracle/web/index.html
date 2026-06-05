@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>verus-oracle</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161a22;
+    --panel2: #1d2230;
+    --fg: #e6e8ee;
+    --muted: #8b94a7;
+    --accent: #4fa3ff;
+    --easy: #4ade80;
+    --medium: #facc15;
+    --hard: #f87171;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 28px 22px 60px; }
+  header { display: flex; align-items: baseline; gap: 14px; margin-bottom: 8px; }
+  h1 { font-size: 22px; margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+  .tag { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+  .sub { color: var(--muted); margin: 0 0 22px; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid #232838;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+  label.row { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; }
+  label.row > span { color: var(--muted); font-size: 12px; }
+  textarea {
+    width: 100%;
+    min-height: 220px;
+    background: var(--panel2);
+    color: var(--fg);
+    border: 1px solid #2a3142;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font: 13px/1.45 var(--mono);
+    resize: vertical;
+  }
+  textarea:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+  .controls { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+  button {
+    background: var(--accent);
+    color: #0b1220;
+    border: 0;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:disabled { opacity: 0.5; cursor: progress; }
+  button.ghost {
+    background: transparent;
+    color: var(--fg);
+    border: 1px solid #2a3142;
+    font-weight: 500;
+  }
+  input[type=file] { color: var(--muted); font-size: 12px; }
+  input[type=checkbox] { accent-color: var(--accent); }
+  .status { color: var(--muted); font-size: 12px; margin-left: auto; font-family: var(--mono); }
+  .err { color: var(--hard); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #232838; }
+  th { color: var(--muted); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  td.mono { font-family: var(--mono); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .pill.easy   { background: rgba(74,222,128,0.12); color: var(--easy); }
+  .pill.medium { background: rgba(250,204,21,0.14); color: var(--medium); }
+  .pill.hard   { background: rgba(248,113,113,0.14); color: var(--hard); }
+  .pattern { font-family: var(--mono); color: var(--accent); font-weight: 600; }
+  .rollup { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
+  .rollup .cell {
+    background: var(--panel2);
+    border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .rollup .k { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .rollup .v { font-family: var(--mono); font-size: 18px; margin-top: 2px; }
+  details { margin-top: 14px; }
+  summary { cursor: pointer; color: var(--muted); font-size: 12px; }
+  pre {
+    background: var(--panel2);
+    border-radius: 6px;
+    padding: 10px;
+    overflow-x: auto;
+    font: 12px/1.4 var(--mono);
+    color: var(--fg);
+    margin: 10px 0 0;
+  }
+  footer { color: var(--muted); font-size: 12px; margin-top: 24px; }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>verus-oracle</h1>
+    <span class="tag">verifiability triage for Rust → Verus</span>
+  </header>
+  <p class="sub">Paste a Rust source file. The oracle predicts which Verus rewrite pattern(s) apply, a difficulty bucket, and an estimated solver duration per function.</p>
+
+  <div class="panel">
+    <div class="controls" style="margin: 0 0 12px;">
+      <input id="url" type="url" placeholder="https://github.com/owner/repo/blob/main/path/to/file.rs"
+             style="flex:1; background: var(--panel2); color: var(--fg); border: 1px solid #2a3142; border-radius: 6px; padding: 8px 10px; font: 13px var(--mono);">
+      <button id="fetchBtn" class="ghost" type="button">Fetch from GitHub</button>
+    </div>
+
+    <label class="row" for="src"><span id="srcLabel">Rust source</span></label>
+    <textarea id="src" placeholder="// paste rust here, e.g.&#10;fn double_then_add(x: u64, y: u64) -> u64 {&#10;    x.wrapping_mul(2).wrapping_add(y).wrapping_add(1)&#10;}"></textarea>
+
+    <div class="controls">
+      <button id="run">Score</button>
+      <button id="loadDemo" class="ghost" type="button">Load demo sample</button>
+      <label class="row" style="margin:0;">
+        <input type="checkbox" id="offline">
+        <span>offline (skip LLM, features only)</span>
+      </label>
+      <span class="status" id="status"></span>
+    </div>
+
+    <div class="controls" style="margin-top: 8px;">
+      <input type="file" id="file" accept=".rs">
+      <span class="status">or upload a .rs file</span>
+    </div>
+  </div>
+
+  <div id="result"></div>
+
+  <footer>
+    JSON API: <code>POST /score</code> · <code>POST /score/upload</code> · OpenAPI at <a href="/docs">/docs</a>
+  </footer>
+</div>
+
+<script>
+const DEMO = `// R1: trait-method call that Verus wants wrapped.
+trait ConstantTimeEq { fn ct_eq(&self, other: &Self) -> u8; }
+fn is_equal<T: ConstantTimeEq>(a: &T, b: &T) -> bool {
+    a.ct_eq(b) == 1
+}
+
+// R2: chained method calls that need to be named.
+fn double_then_add(x: u64, y: u64) -> u64 {
+    x.wrapping_mul(2).wrapping_add(y).wrapping_add(1)
+}
+
+// R3: iterator combinator chain.
+fn sum_squares(xs: &[u32]) -> u64 {
+    xs.iter().map(|x| (*x as u64) * (*x as u64)).filter(|s| *s < 1_000_000).sum()
+}
+
+// R8: compound assignment + nested arithmetic.
+fn pack_limb(carry: u64, low: u64) -> u128 {
+    let mut acc: u128 = 0;
+    acc += (carry as u128) << 51;
+    acc += low as u128;
+    acc
+}
+`;
+
+const $ = (id) => document.getElementById(id);
+const src = $("src"), runBtn = $("run"), demoBtn = $("loadDemo"),
+      offline = $("offline"), status = $("status"), result = $("result"),
+      fileInput = $("file"), urlInput = $("url"), fetchBtn = $("fetchBtn"),
+      srcLabel = $("srcLabel");
+
+let sourceFilename = null;
+
+function setLabel(name) {
+  sourceFilename = name;
+  srcLabel.textContent = name ? `Rust source · ${name}` : "Rust source";
+}
+
+demoBtn.onclick = () => { src.value = DEMO; setLabel("demo.rs"); };
+
+fileInput.onchange = async () => {
+  const f = fileInput.files[0]; if (!f) return;
+  src.value = await f.text();
+  setLabel(f.name);
+};
+
+fetchBtn.onclick = async () => {
+  const url = urlInput.value.trim();
+  if (!url) { status.innerHTML = '<span class="err">paste a github url first</span>'; return; }
+  fetchBtn.disabled = true;
+  status.textContent = "fetching…";
+  try {
+    const r = await fetch("/fetch", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ url }),
+    });
+    const body = await r.json();
+    if (!r.ok) {
+      status.innerHTML = `<span class="err">${body.detail || r.statusText}</span>`;
+      return;
+    }
+    src.value = body.source;
+    setLabel(body.filename);
+    status.textContent = `loaded ${body.filename} (${body.source.length} bytes)`;
+  } catch (e) {
+    status.innerHTML = `<span class="err">network error</span>`;
+  } finally {
+    fetchBtn.disabled = false;
+  }
+};
+
+function pill(b) {
+  const cls = b === "easy" ? "easy" : (b === "hard" ? "hard" : "medium");
+  return `<span class="pill ${cls}">${b}</span>`;
+}
+
+function render(v) {
+  const rows = (v.functions || []).map(fn => `
+    <tr>
+      <td class="mono">${fn.function}</td>
+      <td>${pill(fn.bucket)}</td>
+      <td><span class="pattern">${fn.predicted_pattern || "—"}</span>
+          <span class="status">${fn.top_confidence != null ? "@" + fn.top_confidence.toFixed(2) : ""}</span></td>
+      <td class="num">${fn.est_duration_s != null ? fn.est_duration_s.toFixed(0) + "s" : "—"}</td>
+      <td>${pill(fn.duration_bucket)}</td>
+    </tr>`).join("");
+
+  result.innerHTML = `
+    <div class="panel">
+      <div class="rollup">
+        <div class="cell"><div class="k">file</div><div class="v">${v.file || "&lt;inline&gt;"}</div></div>
+        <div class="cell"><div class="k">bucket</div><div class="v">${pill(v.bucket)}</div></div>
+        <div class="cell"><div class="k">predicted</div><div class="v"><span class="pattern">${v.predicted_pattern || "—"}</span></div></div>
+        <div class="cell"><div class="k">est. duration</div><div class="v">${v.est_duration_s != null ? v.est_duration_s.toFixed(0) + "s" : "—"} ${pill(v.duration_bucket)}</div></div>
+      </div>
+      <table>
+        <thead><tr><th>function</th><th>bucket</th><th>top pattern</th><th>est. duration</th><th>dur. bucket</th></tr></thead>
+        <tbody>${rows || `<tr><td colspan="5" class="status">no functions parsed</td></tr>`}</tbody>
+      </table>
+      <details><summary>raw JSON</summary><pre>${JSON.stringify(v, null, 2)}</pre></details>
+    </div>`;
+}
+
+runBtn.onclick = async () => {
+  const source = src.value.trim();
+  if (!source) { status.innerHTML = '<span class="err">paste some source first</span>'; return; }
+  runBtn.disabled = true;
+  const t0 = performance.now();
+  status.textContent = offline.checked ? "scoring (offline)…" : "scoring (LLM, ~15s)…";
+  result.innerHTML = "";
+  try {
+    const r = await fetch("/score", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ source, offline: offline.checked }),
+    });
+    if (!r.ok) {
+      const txt = await r.text();
+      status.innerHTML = `<span class="err">error ${r.status}</span>`;
+      result.innerHTML = `<div class="panel"><pre>${txt}</pre></div>`;
+      return;
+    }
+    const v = await r.json();
+    status.textContent = `done in ${((performance.now() - t0) / 1000).toFixed(1)}s`;
+    render(v);
+  } catch (e) {
+    status.innerHTML = `<span class="err">network error</span>`;
+    result.innerHTML = `<div class="panel"><pre>${e}</pre></div>`;
+  } finally {
+    runBtn.disabled = false;
+  }
+};
+</script>
+</body>
+</html>
