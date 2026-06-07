@@ -1,6 +1,6 @@
 # verus-oracle
 
-A verifiability oracle for [Verus](https://verus-lang.github.io/verus/). Given a Rust file
+A verifiability oracle for [Verus](https://github.com/verus-lang/verus). Given a Rust file
 as input, it outputs:
 
 - **Verifiability score**: easy / medium / hard (estimated effort to make it `cargo verus verify`).
